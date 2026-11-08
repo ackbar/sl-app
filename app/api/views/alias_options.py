@@ -4,6 +4,7 @@ from sqlalchemy import desc
 
 from app.alias_suffix import get_alias_suffixes
 from app.api.base import api_bp, require_api_auth
+from app.config import DISABLE_TLDEXTRACT_FETCH
 from app.db import Session
 from app.log import LOG
 from app.models import AliasUsedOn, Alias, User
@@ -61,7 +62,12 @@ def options_v4():
     if hostname:
         # keep only the domain name of hostname, ignore TLD and subdomain
         # for ex www.groupon.com -> groupon
-        ext = tldextract.extract(hostname)
+        if DISABLE_TLDEXTRACT_FETCH:
+                # extract domain without fetching from the online database
+                extractor = tldextract.TLDExtract(suffix_list_urls=())
+                ext = extractor(hostname)
+        else:
+                ext = tldextract.extract(hostname)
         prefix_suggestion = ext.domain
         prefix_suggestion = convert_to_id(prefix_suggestion)
         ret["prefix_suggestion"] = prefix_suggestion
@@ -132,7 +138,12 @@ def options_v5():
     if hostname:
         # keep only the domain name of hostname, ignore TLD and subdomain
         # for ex www.groupon.com -> groupon
-        ext = tldextract.extract(hostname)
+        if DISABLE_TLDEXTRACT_FETCH:
+                # extract domain without fetching from the online database
+                extractor = tldextract.TLDExtract(suffix_list_urls=())
+                ext = extractor(hostname)
+        else:
+                ext = tldextract.extract(hostname)
         prefix_suggestion = ext.domain
         prefix_suggestion = convert_to_id(prefix_suggestion)
         ret["prefix_suggestion"] = prefix_suggestion

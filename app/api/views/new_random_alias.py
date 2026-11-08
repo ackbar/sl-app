@@ -9,7 +9,7 @@ from app.api.serializer import (
     get_alias_info_v2,
     serialize_alias_info_v2,
 )
-from app.config import MAX_NB_EMAIL_FREE_PLAN, ALIAS_LIMIT
+from app.config import MAX_NB_EMAIL_FREE_PLAN, ALIAS_LIMIT, DISABLE_TLDEXTRACT_FETCH
 from app.db import Session
 from app.errors import AliasInTrashError
 from app.extensions import limiter
@@ -55,7 +55,12 @@ def new_random_alias():
         LOG.d("Use %s to create new alias", hostname)
         # keep only the domain name of hostname, ignore TLD and subdomain
         # for ex www.groupon.com -> groupon
-        ext = tldextract.extract(hostname)
+        if DISABLE_TLDEXTRACT_FETCH:
+                # extract domain without fetching from the online database
+                extractor = tldextract.TLDExtract(suffix_list_urls=())
+                ext = extractor(hostname)
+        else:
+                ext = tldextract.extract(hostname)
         prefix_suggestion = ext.domain
         prefix_suggestion = convert_to_id(prefix_suggestion)
 

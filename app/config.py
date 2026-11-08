@@ -821,3 +821,7 @@ PROMETHEUS_METRICS_TOKEN = os.environ.get("PROMETHEUS_METRICS_TOKEN") or None
 
 # Prefix prepended to every metric name created by the Prometheus backend
 PROMETHEUS_METRIC_PREFIX = os.environ.get("PROMETHEUS_METRIC_PREFIX", "simplelogin")
+
+# Disable tldextract HTTP fetches from publiclist.org to make the application work
+# when hosted in an environment where it cannot initiate connections to the Internet.
+DISABLE_TLDEXTRACT_FETCH = "DISABLE_TLDEXTRACT_FETCH" in os.environ
